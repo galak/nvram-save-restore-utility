@@ -945,7 +945,11 @@ fi
 if [ -d "/jffs" ] && [ "$jffsbackup" -eq 1 ]; then
   ############################################################################################Martineau Hack ######################################
   #jffsdir="$dwd/jffs$dash$rundate$dash$macid"
-  jffsdir="$dwd/jffs$dash$rundate$UNDERSCORE$MYROUTER$dash$macid"
+  if [ "$backupdir" = 1 ]; then
+     jffsdir="$dwd/jffs$dash$MYROUTER$dash$macid"
+  else
+     jffsdir="$dwd/jffs$dash$rundate$UNDERSCORE$MYROUTER$dash$macid"
+  fi
   ###########################################################################################################################################
 
   if [ ! -d "$jffsdir" ]; then
