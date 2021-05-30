@@ -208,6 +208,7 @@ rundate="$(date +%Y%m%d%H%M)"
 migrate="0"
 jffsbackup="1"
 userscript="1"
+backupdir="0"
 clean="1"
 setstring="nvram set"
 skipvar="#### clkfreq"
@@ -239,12 +240,18 @@ while [ $# -gt 0 ]; do
     echo "          -b           Backup mode - save for restore to same router (default)"
     echo "          -m           Migration mode - transfer settings to another router"
     echo "          -i inifile   Specify custom nvram variable ini file"
+    echo "          -d dir       Directory to place backup files in"
     echo "          -clk         Include clkfreq/overclock setting (Backup mode only)"
     echo "          -nojffs      Skip backup of jffs storage"
     echo "          -nouser      Skip execution of user exit script"
     #		echo "          -noclean     Create old style restore script to restore all variables only"
     echo ""
     exit 0
+    ;;
+  "-D" | "-d")
+    backupdir=1
+    dwd=$2
+    shift
     ;;
   "-M" | "-m")
     migrate=1
@@ -389,12 +396,23 @@ grep -q "Version=${version%\.*}" "$cwd/$jffsfile" || logger -s -t "$scr_name" "W
 #outfile="$dwd/$restorescript$dash$rundate$dash$macid.sh"
 #nvramallfile="$dwd/$nvramall$dash$rundate$dash$macid.txt"
 #nvramusrfile="$dwd/$nvramusr$dash$rundate$dash$macid.txt"
+
+if [ "$backupdir" = 1 ]; then
+mkdir -p $dwd/$rundate
+outfile="$dwd/$rundate/$restorescript$dash$MYROUTER$dash$macid.sh"
+nvramallfile="$dwd/$rundate/$nvramall$dash$MYROUTER$dash$macid.txt"
+nvramusrfile="$dwd/$rundate/$nvramusr$dash$MYROUTER$dash$macid.txt"
+
+#saveinfile="$dwd/$nvramini$dash$rundate$dash$macid.txt"
+saveinfile="$dwd/$rundate/$nvramini$dash$MYROUTER$dash$macid.txt"
+else
 outfile="$dwd/$restorescript$dash$rundate$UNDERSCORE$MYROUTER$dash$macid.sh"
 nvramallfile="$dwd/$nvramall$dash$rundate$UNDERSCORE$MYROUTER$dash$macid.txt"
 nvramusrfile="$dwd/$nvramusr$dash$rundate$UNDERSCORE$MYROUTER$dash$macid.txt"
 
 #saveinfile="$dwd/$nvramini$dash$rundate$dash$macid.txt"
 saveinfile="$dwd/$nvramini$dash$rundate$UNDERSCORE$MYROUTER$dash$macid.txt"
+fi
 cp -af $infile "$saveinfile"
 #echo -e "$cBBLU"
 printf '%b' "$cBBLU"
