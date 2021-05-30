@@ -209,6 +209,7 @@ migrate="0"
 jffsbackup="1"
 userscript="1"
 backupdir="0"
+rundatedir="1"
 clean="1"
 setstring="nvram set"
 skipvar="#### clkfreq"
@@ -244,6 +245,7 @@ while [ $# -gt 0 ]; do
     echo "          -clk         Include clkfreq/overclock setting (Backup mode only)"
     echo "          -nojffs      Skip backup of jffs storage"
     echo "          -nouser      Skip execution of user exit script"
+    echo "          -norundate   Skip execution of user exit script"
     #		echo "          -noclean     Create old style restore script to restore all variables only"
     echo ""
     exit 0
@@ -285,6 +287,9 @@ while [ $# -gt 0 ]; do
     ;;
   "-nouser" | "-NOUSER")
     userscript=0
+    ;;
+  "-norundate" | "-NORUNDATE")
+    rundatedir=0
     ;;
   "-clk" | "-CLK")
     #    skipvar=${skipvar//clkfreq/} # for include -clk option
@@ -398,13 +403,22 @@ grep -q "Version=${version%\.*}" "$cwd/$jffsfile" || logger -s -t "$scr_name" "W
 #nvramusrfile="$dwd/$nvramusr$dash$rundate$dash$macid.txt"
 
 if [ "$backupdir" = 1 ]; then
+if [ "$rundatedir" = 1 ]; then
 mkdir -p $dwd/$rundate
 outfile="$dwd/$rundate/$restorescript$dash$MYROUTER$dash$macid.sh"
 nvramallfile="$dwd/$rundate/$nvramall$dash$MYROUTER$dash$macid.txt"
 nvramusrfile="$dwd/$rundate/$nvramusr$dash$MYROUTER$dash$macid.txt"
 
-#saveinfile="$dwd/$nvramini$dash$rundate$dash$macid.txt"
 saveinfile="$dwd/$rundate/$nvramini$dash$MYROUTER$dash$macid.txt"
+
+else
+outfile="$dwd/$restorescript$dash$MYROUTER$dash$macid.sh"
+nvramallfile="$dwd/$nvramall$dash$MYROUTER$dash$macid.txt"
+nvramusrfile="$dwd/$nvramusr$dash$MYROUTER$dash$macid.txt"
+
+saveinfile="$dwd/$nvramini$dash$MYROUTER$dash$macid.txt"
+
+fi
 else
 outfile="$dwd/$restorescript$dash$rundate$UNDERSCORE$MYROUTER$dash$macid.sh"
 nvramallfile="$dwd/$nvramall$dash$rundate$UNDERSCORE$MYROUTER$dash$macid.txt"
